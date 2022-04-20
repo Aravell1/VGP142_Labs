@@ -23,4 +23,9 @@ public class GameManager : Singleton<GameManager>
     {        
         SceneManager.LoadScene("Gameover");
     }
+
+    public void Restart()
+    {
+        SceneManager.LoadScene("Lab3");
+    }
 }

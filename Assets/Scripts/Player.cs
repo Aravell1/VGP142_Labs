@@ -7,6 +7,7 @@ using System;
 public class Player : MonoBehaviour
 {
     CharacterController controller;
+    Fire playerFire;
 
     [Header("Player Settings")]
     [Space(2)]
@@ -30,6 +31,7 @@ public class Player : MonoBehaviour
         try
         {
             controller = GetComponent<CharacterController>();
+            playerFire = GetComponent<Fire>();
             controller.minMoveDistance = 0.0f;
 
             if (speed <= 0)
@@ -78,15 +80,6 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        /*float vInput = Input.GetAxis("Vertical");
-        if (vInput > 0)
-            transform.position += transform.forward * Time.deltaTime * speed;
-        else if (vInput < 0)
-            transform.position -= transform.forward * Time.deltaTime * speed;
-
-        Vector3 moveRotation = new Vector3(0, Input.GetAxis("Horizontal"), 0);
-        this.transform.Rotate(moveRotation);*/
-
         if (controller.isGrounded)
         {
             moveDirection = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
@@ -116,6 +109,7 @@ public class Player : MonoBehaviour
     void Fire()
     {
         Debug.Log("pew pew");
+        playerFire.FireProjectile();
     }
 
     [ContextMenu("Reset Stats")]
@@ -128,17 +122,24 @@ public class Player : MonoBehaviour
         projectileForce = 10.0f;
     }
 
-    private void OnCollisionEnter(Collider other)
+    private void OnCollisionEnter(Collision other)
     {
+        Debug.Log(other.gameObject.tag);
         if (other.gameObject.tag == "FinishPoint")
         {
             Debug.Log("LoadNextLevel");
             Debug.Log("Press Enter to end the game");
             GameManager.Instance.EndGameQuery();
+        }        
+        else if (other.gameObject.tag == "EnemyProjectile")
+        {
+            Debug.Log("Got hit");
+            Destroy(gameObject);
+            GameManager.Instance.Restart();
         }
+        
     }
-
-    private void OnCollisionExit(Collider other)
+    private void OnCollisionExit(Collision other)
     {
         if (other.gameObject.tag == "FinishPoint")
         {
