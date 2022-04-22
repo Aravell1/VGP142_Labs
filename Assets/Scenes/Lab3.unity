@@ -147,6 +147,20 @@ MonoBehaviour:
   checkedLayers:
     serializedVersion: 2
     m_Bits: 8
+--- !u!136 &36758984
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 36758982}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  m_Radius: 0.5
+  m_Height: 1
+  m_Direction: 1
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!4 &36758987 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1498042421496103685, guid: b50b271f3eaeb8d4fa682a6b3cd25401, type: 3}
