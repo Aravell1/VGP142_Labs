@@ -11,22 +11,21 @@ public class MinionMovement : MonoBehaviour
     Transform enemy;
 
     [SerializeField]
-    Rigidbody projectilePrefab;
-
-    [SerializeField]
-    Transform projectileSpawnPoint;
+    Transform rayOrigin;
 
     public LayerMask checkedLayers;
 
     public float speed;
     public float rotationSpeed;
     public float timeOfLastFire;
-    public float projectileForce;
     public float projectileFireRate;
+
+    Animator anim;
 
     // Start is called before the first frame update
     void Start()
     {
+        anim = GetComponentInChildren<Animator>();
         if (speed <= 0)
         {
             speed = 3;
@@ -35,13 +34,9 @@ public class MinionMovement : MonoBehaviour
         {
             rotationSpeed = 25;
         }
-        if (projectileForce <= 0)
-        {
-            projectileForce = 75;
-        }
         if (projectileFireRate <= 0)
         {
-            projectileFireRate = 2;
+            projectileFireRate = 5;
         }
     }
 
@@ -49,20 +44,39 @@ public class MinionMovement : MonoBehaviour
     void Update()
     {
         var towardsPlayer = Player.transform.position - transform.position;
+        AnimatorClipInfo[] curAnim = anim.GetCurrentAnimatorClipInfo(0);
 
         if (enemy.transform.gameObject.activeSelf == true && Vector3.Distance(transform.position, Player.position) >= 3)
         {
-            transform.position += transform.forward * speed * Time.deltaTime;
-            transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(towardsPlayer), Time.deltaTime * rotationSpeed);
+            if (curAnim[0].clip.name != "Throw Object" && curAnim[0].clip.name != "Zombie Kicking" && curAnim[0].clip.name != "Punching")
+            { 
+                transform.position += transform.forward * speed * Time.deltaTime;
+                transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(towardsPlayer), Time.deltaTime * rotationSpeed);
+                anim.SetFloat("Speed", 1);
+            }
+            else
+                anim.SetFloat("Speed", 0);
         }
         
         RaycastHit hitInfo;
-        if (Physics.Raycast(projectileSpawnPoint.transform.position, transform.forward, out hitInfo, 20.0f, checkedLayers) && Time.time > timeOfLastFire + projectileFireRate)
+        if (Physics.Raycast(rayOrigin.transform.position, transform.forward, out hitInfo, 20.0f, checkedLayers) && Time.time > timeOfLastFire + projectileFireRate)
         {
-            Fire();
+            timeOfLastFire = Time.time;
+
+            if (Vector3.Distance(transform.position, Player.position) >= 5)
+                anim.SetTrigger("Throw");
+            else
+            {
+                int randomTemp = Random.Range(0, 2);
+                if (randomTemp == 0)
+                    anim.SetTrigger("Punch");
+                else if (randomTemp == 1)
+                    anim.SetTrigger("Kick");
+            }
+
         }
         Vector3 endPos = transform.forward * 20.0f;
-        Debug.DrawRay(projectileSpawnPoint.transform.position, endPos, Color.red);
+        Debug.DrawRay(rayOrigin.transform.position, endPos, Color.red);
 
         transform.rotation = Quaternion.Euler(0, transform.rotation.eulerAngles.y, 0);
 
@@ -80,19 +94,32 @@ public class MinionMovement : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
+        Debug.Log("Collided with " + collision.gameObject.name);
         if (enemy.transform.gameObject.activeSelf == false)
         {
             Debug.Log("Should ignore collision");
             Physics.IgnoreCollision(collision.gameObject.GetComponent<Collider>(), GetComponent<Collider>());
         }
+        else if (collision.gameObject.tag == "PlayerProjectile")
+        {
+            Debug.Log("Should Die");
+            Destroy(gameObject);
+        }
     }
-
-    public void Fire()
+    private void OnTriggerEnter(Collider other)
     {
-        timeOfLastFire = Time.time;
-
-        Rigidbody temp;
-        temp = Instantiate(projectilePrefab, projectileSpawnPoint.position, projectileSpawnPoint.rotation);
-        temp.gameObject.GetComponent<Rigidbody>().velocity = transform.forward * projectileForce;
+        Debug.Log("Collided with " + other.gameObject.name);
+        if (other.gameObject.name == "KickCollider" && Player.GetComponentInChildren<Animator>().GetCurrentAnimatorClipInfo(0)[0].clip.name == "Mma Kick")
+        {
+            Debug.Log("Should Die");
+            Destroy(gameObject);
+        }
+        else if (other.gameObject.name == "PunchCollider" && Player.GetComponentInChildren<Animator>().GetCurrentAnimatorClipInfo(0)[0].clip.name == "Cross Punch")
+        {
+            Debug.Log("Should Die");
+            Destroy(gameObject);
+        }
     }
+
+
 }

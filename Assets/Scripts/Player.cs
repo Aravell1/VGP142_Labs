@@ -8,6 +8,7 @@ public class Player : MonoBehaviour
 {
     CharacterController controller;
     Fire playerFire;
+    Animator anim;
 
     [Header("Player Settings")]
     [Space(2)]
@@ -33,6 +34,7 @@ public class Player : MonoBehaviour
             controller = GetComponent<CharacterController>();
             playerFire = GetComponent<Fire>();
             controller.minMoveDistance = 0.0f;
+            anim = GetComponentInChildren<Animator>();
 
             if (speed <= 0)
             {
@@ -75,14 +77,27 @@ public class Player : MonoBehaviour
         {
             Debug.Log("Always Gets Called");
         }
+
+        Debug.Log(anim.gameObject.name);
     }
 
     // Update is called once per frame
     void Update()
     {
+        AnimatorClipInfo[] curAnim = anim.GetCurrentAnimatorClipInfo(0);
+
         if (controller.isGrounded)
         {
-            moveDirection = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
+            if (curAnim.Length > 0)
+            {
+                if (curAnim[0].clip.name != "Cross Punch" && curAnim[0].clip.name != "Mma Kick" && curAnim[0].clip.name != "Death")
+                    moveDirection = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
+                else
+                    moveDirection = Vector3.zero;                
+            }
+            anim.SetFloat("Horizontal", moveDirection.x);
+            anim.SetFloat("Vertical", moveDirection.z);
+
             moveDirection *= speed;
             moveDirection = transform.TransformDirection(moveDirection);
 
@@ -98,19 +113,25 @@ public class Player : MonoBehaviour
         }*/
 
         moveDirection.y -= gravity * Time.deltaTime;
+
+
         controller.Move(moveDirection * Time.deltaTime);
 
         if (Input.GetButtonDown("Fire1"))
         {
-            Fire();
+            anim.SetTrigger("Attack");
+        }
+        if (Input.GetButtonDown("Fire2"))
+        {
+            anim.SetTrigger("Kick");
         }
     }
 
-    void Fire()
+    /*void Fire()
     {
         Debug.Log("pew pew");
         playerFire.FireProjectile();
-    }
+    }*/
 
     [ContextMenu("Reset Stats")]
     void ResetStats()
@@ -134,11 +155,10 @@ public class Player : MonoBehaviour
         else if (other.gameObject.tag == "EnemyProjectile")
         {
             Debug.Log("Got hit");
-            Destroy(gameObject);
-            GameManager.Instance.Restart();
+            anim.SetTrigger("Death");
         }
-        
     }
+
     private void OnCollisionExit(Collision other)
     {
         if (other.gameObject.tag == "FinishPoint")
