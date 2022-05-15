@@ -13,6 +13,7 @@ public class CanvasManager : MonoBehaviour
     public Button menuButton;
     public Button quitButton;
     public Button resumeButton;
+    public Button endButton;
 
     [Header("Menus")]
     public GameObject pauseMenu;
@@ -45,6 +46,10 @@ public class CanvasManager : MonoBehaviour
         if (resumeButton)
         {
             resumeButton.onClick.AddListener(() => ResumeGame());
+        }
+        if (endButton)
+        {
+            endButton.onClick.AddListener(() => EndGame());
         }
         if (healthSlider && healthText)
         {
@@ -97,6 +102,10 @@ public class CanvasManager : MonoBehaviour
 #else
         Application.Quit();
 #endif
+    }
+    public void EndGame()
+    {
+        GameManager.Instance.EndGame();
     }
     void OnSliderValueChange(float value)
     {

@@ -50,7 +50,6 @@ public class GameManager : Singleton<GameManager>
     public void EndGame()
     {
         activeScene = SceneManager.GetActiveScene().name;
-        Debug.Log(activeScene);
         SceneManager.LoadScene("Gameover");
     }       
 }
