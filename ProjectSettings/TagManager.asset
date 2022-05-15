@@ -9,6 +9,7 @@ TagManager:
   - EnemyProjectile
   - PlayerProjectile
   - PatrolNode
+  - Mushroom
   layers:
   - Default
   - TransparentFX

@@ -72,7 +72,7 @@ public class MinionMovement : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
         if (projectileFireRate <= 0)
         {
-            projectileFireRate = 10;
+            projectileFireRate = 6;
         }
 
         rb.isKinematic = true;
@@ -123,9 +123,16 @@ public class MinionMovement : MonoBehaviour
     void Update()
     {
         AnimatorClipInfo[] curAnim = anim.GetCurrentAnimatorClipInfo(0);
-        if (curAnim[0].clip.name != "Zombie Death")
+
+        if (curAnim[0].clip.name == "Zombie Death")
         {
-            distToTarget = Vector3.Distance(transform.position, target.transform.position);
+            rb.constraints = RigidbodyConstraints.FreezeAll;
+            agent.enabled = false;
+        }
+        else
+        {
+            if (target)
+                distToTarget = Vector3.Distance(transform.position, target.transform.position);
 
             if (target && enemyType == EnemyType.Patrol)
             {
@@ -181,12 +188,12 @@ public class MinionMovement : MonoBehaviour
                     agent.SetDestination(target.transform.position);
                 }
 
-                if (Time.time > timeOfLastFire + projectileFireRate && Vector3.Distance(transform.position, Player.transform.position) >= 4)
+                if (Time.time > timeOfLastFire + projectileFireRate && Vector3.Distance(transform.position, Player.transform.position) >= 2)
                 {
                     timeOfLastFire = Time.time;
                     anim.SetTrigger("Throw");
                 }
-                else if (Time.time > timeOfLastFire + projectileFireRate && Vector3.Distance(transform.position, Player.transform.position) < 4)
+                else if (Time.time > timeOfLastFire + projectileFireRate && Vector3.Distance(transform.position, Player.transform.position) < 2)
                 {
                     //Debug.Log("Melee Attack");
                     timeOfLastFire = Time.time;
@@ -217,14 +224,17 @@ public class MinionMovement : MonoBehaviour
             }
         }
 
+        
+
         healthBar.transform.LookAt(GameObject.Find("Main Camera").transform);
         transform.rotation = Quaternion.Euler(0, transform.rotation.eulerAngles.y, 0);
     }
 
     private void OnCollisionEnter(Collision collision)
     {
+        AnimatorClipInfo[] curAnim = anim.GetCurrentAnimatorClipInfo(0);
         //Debug.Log("Collided with " + collision.gameObject.name);
-        if (collision.gameObject.tag == "PlayerProjectile")
+        if (curAnim[0].clip.name != "Zombie Death" && collision.gameObject.tag == "PlayerProjectile")
         {
             Destroy(collision.gameObject);
             health--;
@@ -232,8 +242,9 @@ public class MinionMovement : MonoBehaviour
     }
     private void OnTriggerEnter(Collider other)
     {
+        AnimatorClipInfo[] curAnim = anim.GetCurrentAnimatorClipInfo(0);
         //Debug.Log("Collided with " + other.gameObject.name);
-        if ((other.gameObject.name == "KickCollider" && Player.GetComponentInChildren<Animator>().GetCurrentAnimatorClipInfo(0)[0].clip.name == "Mma Kick")
+        if ((curAnim[0].clip.name != "Zombie Death" && other.gameObject.name == "KickCollider" && Player.GetComponentInChildren<Animator>().GetCurrentAnimatorClipInfo(0)[0].clip.name == "Mma Kick")
             || (other.gameObject.name == "PunchCollider" && Player.GetComponentInChildren<Animator>().GetCurrentAnimatorClipInfo(0)[0].clip.name == "Cross Punch"))
         {
             health--;

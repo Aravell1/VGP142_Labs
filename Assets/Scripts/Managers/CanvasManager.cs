@@ -68,6 +68,7 @@ public class CanvasManager : MonoBehaviour
                     pauseMenu.SetActive(false);
                     GameManager.Instance.pause = false;
                 }
+                GameObject.Find("Player").GetComponent<Player>().onPause();
             }
         }
     }

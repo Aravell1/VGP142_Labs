@@ -13,7 +13,6 @@ public class GameManager : Singleton<GameManager>
     int _health = 3;
     int maxHealth = 3;
 
-    GameObject Player;
     public int health
     {
         get
@@ -26,7 +25,7 @@ public class GameManager : Singleton<GameManager>
             {
                 GameObject.Find("Canvas").GetComponent<CanvasManager>().healthSlider.value = value;
                 if (value > 0)
-                    Player.GetComponentInChildren<Animator>().SetTrigger("Hit");
+                    GameObject.FindWithTag("Player").GetComponentInChildren<Animator>().SetTrigger("Hit");
             }
 
             _health = value;
@@ -39,7 +38,7 @@ public class GameManager : Singleton<GameManager>
 
             if (_health <= 0)
             {
-                Player.GetComponentInChildren<Animator>().SetTrigger("Death");
+                GameObject.FindWithTag("Player").GetComponentInChildren<Animator>().SetTrigger("Death");
             }
 
             Debug.Log("Health Set to: " + health.ToString());
@@ -48,14 +47,10 @@ public class GameManager : Singleton<GameManager>
 
     [HideInInspector] public UnityEvent<int> onLifeValueChange;
 
-    protected void Start()
-    {
-        Player = GameObject.FindWithTag("Player");
-    }
-
     public void EndGame()
     {
         activeScene = SceneManager.GetActiveScene().name;
+        Debug.Log(activeScene);
         SceneManager.LoadScene("Gameover");
     }       
 }

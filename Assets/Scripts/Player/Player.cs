@@ -15,7 +15,7 @@ public class Player : MonoBehaviour
     [Tooltip("Speed vaue between 1 and 6")]
     [Range(1.0f, 12.0f)]
     public float speed;
-    private float storedSpeed;
+    public float storedSpeed;
     public float jumpSpeed;
     public float rotationSpeed;
     public float gravity;
@@ -28,6 +28,7 @@ public class Player : MonoBehaviour
     Vector3 moveDirection;
 
     bool coroutineRunning = false;
+    bool inWater = false;
 
     // Start is called before the first frame update
     void Start()
@@ -41,7 +42,7 @@ public class Player : MonoBehaviour
 
             if (speed <= 0)
             {
-                speed = 6.0f;
+                speed = 8.0f;
             }
             if (jumpSpeed <= 0)
             {
@@ -74,7 +75,7 @@ public class Player : MonoBehaviour
             Debug.Log("Always Gets Called");
         }
 
-        Debug.Log(anim.gameObject.name);
+        //Debug.Log(anim.gameObject.name);
 
         storedSpeed = speed;
     }
@@ -84,7 +85,7 @@ public class Player : MonoBehaviour
     {
         AnimatorClipInfo[] curAnim = anim.GetCurrentAnimatorClipInfo(0);
 
-        if (curAnim[0].clip.name != "Hit To Body" && controller.isGrounded)
+        if (controller.isGrounded)
         {
             if (curAnim.Length > 0)
             {
@@ -93,8 +94,16 @@ public class Player : MonoBehaviour
                 else
                     moveDirection = Vector3.zero;                
             }
-            anim.SetFloat("Horizontal", moveDirection.x);
-            anim.SetFloat("Vertical", moveDirection.z);
+            if (!inWater)
+            {
+                anim.SetFloat("Horizontal", moveDirection.x);
+                anim.SetFloat("Vertical", moveDirection.z);
+            }
+            else
+            {
+                anim.SetFloat("Horizontal", moveDirection.x / 2);
+                anim.SetFloat("Vertical", moveDirection.z / 2);
+            }
 
             moveDirection *= speed;
             moveDirection = transform.TransformDirection(moveDirection);
@@ -109,18 +118,7 @@ public class Player : MonoBehaviour
         {
             moveDirection.x = Input.GetAxis("Horizontal") * speed;
             moveDirection.z = Input.GetAxis("Vertical") * speed;
-        }*/
-
-        if (GameManager.Instance.pause)
-        {
-            anim.speed = 0;
-            speed = 0;
-        }
-        else
-        {
-            anim.speed = 1;
-            speed = storedSpeed;
-        }
+        }*/       
 
         //Debug.Log(controller.isGrounded);
         //anim.SetBool("IsGrounded", controller.isGrounded);
@@ -148,26 +146,70 @@ public class Player : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         AnimatorClipInfo[] curAnim = anim.GetCurrentAnimatorClipInfo(0);
-        if ((curAnim[0].clip.name != "Hit To Body" && other.gameObject.name == "EnemyKickCollider" && other.GetComponentInParent<Animator>().GetCurrentAnimatorClipInfo(0)[0].clip.name == "Zombie Kicking" && curAnim[0].clip.name != "Death") 
-            || (curAnim[0].clip.name != "Hit To Body" && other.gameObject.name == "EnemyPunchCollider" && other.GetComponentInParent<Animator>().GetCurrentAnimatorClipInfo(0)[0].clip.name == "Punching" && curAnim[0].clip.name != "Death"))
+        if ((curAnim[0].clip.name != "Hit To Body" && other.gameObject.name == "EnemyKickCollider" 
+            && other.GetComponentInParent<Animator>().GetCurrentAnimatorClipInfo(0)[0].clip.name == "Zombie Kicking" && curAnim[0].clip.name != "Death") 
+            || (curAnim[0].clip.name != "Hit To Body" && other.gameObject.name == "EnemyPunchCollider" 
+            && other.GetComponentInParent<Animator>().GetCurrentAnimatorClipInfo(0)[0].clip.name == "Punching" && curAnim[0].clip.name != "Death"))
         {
-            Debug.Log("Got hit");
+            //Debug.Log("Got hit");
             GameManager.Instance.health--;
+        }
+        else if (other.gameObject.layer == 4)
+        {
+            speed = speed / 2;
+            //Debug.Log("Hit Water");
+            inWater = true;
         }
     }
 
     private void OnCollisionEnter(Collision other)
     {
         AnimatorClipInfo[] curAnim = anim.GetCurrentAnimatorClipInfo(0);
-        Debug.Log(other.gameObject.tag);       
+        Debug.Log(other.gameObject.tag);
+        Debug.Log(other.gameObject.name);
         if (curAnim[0].clip.name != "Hit To Body" && other.gameObject.tag == "EnemyProjectile" && curAnim[0].clip.name != "Death")
         {
-            Debug.Log("Got hit");
+            //Debug.Log("Got hit");
             Destroy(other.gameObject);
             GameManager.Instance.health--;
         }
     }
 
+    private void OnControllerColliderHit(ControllerColliderHit hit)
+    {
+        AnimatorClipInfo[] curAnim = anim.GetCurrentAnimatorClipInfo(0);
+        if (curAnim[0].clip.name != "Hit To Body" && hit.gameObject.tag == "Mushroom")
+        {
+            Debug.Log("Mushroom");
+            GameManager.Instance.health--;
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.gameObject.layer == 4)
+        {
+            speed = speed * 2;
+            //Debug.Log("Left Water");
+            inWater = false;
+        }
+    }
+
+    public void onPause()
+    {
+        if (GameManager.Instance.pause)
+        {
+            anim.speed = 0;
+            storedSpeed = speed;
+            speed = 0;
+        }
+        else
+        {
+            anim.speed = 1;
+            speed = storedSpeed;
+        }
+    }
+        
     public void StartJumpForceChange()
     {
         if (!coroutineRunning)
@@ -202,7 +244,7 @@ public class Player : MonoBehaviour
         else
         {
             StopCoroutine("SpeedForceChange");
-            speed /= 2;
+            speed /= 1.5f;
             StartCoroutine("SpeedForceChange");
         }
     }
@@ -210,11 +252,11 @@ public class Player : MonoBehaviour
     IEnumerator SpeedForceChange()
     {
         coroutineRunning = true;
-        speed *= 2;
+        speed *= 1.5f;
 
         yield return new WaitForSeconds(5.0f);
 
-        speed /= 2;
+        speed /= 1.5f;
         coroutineRunning = false;
     }
 }

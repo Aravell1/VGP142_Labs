@@ -91,6 +91,17 @@ public class Fire : MonoBehaviour
         }
     }
 
+    public void hitStart()
+    {
+        Player.GetComponent<Player>().storedSpeed = Player.GetComponent<Player>().speed;
+        Player.GetComponent<Player>().speed = 0;
+    }
+
+    public void hitEnd()
+    {
+        Player.GetComponent<Player>().speed = Player.GetComponent<Player>().storedSpeed;
+    }
+
     public void Death()
     {
         Destroy(gameObject);
