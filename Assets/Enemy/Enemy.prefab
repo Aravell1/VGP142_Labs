@@ -970,6 +970,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   projectilePrefab: {fileID: 7299658267321980167, guid: c06682ea19780fb4cb49ee2ced1463c1, type: 3}
   projectileSpawnPoint: {fileID: 5922562716797096499}
+  parentEnemy: {fileID: 5922562715575068257}
   projectileForce: 0
 --- !u!1 &5922562715381022729
 GameObject:

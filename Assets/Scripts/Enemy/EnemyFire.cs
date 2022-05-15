@@ -10,6 +10,9 @@ public class EnemyFire : MonoBehaviour
     [SerializeField]
     Transform projectileSpawnPoint;
 
+    [SerializeField]
+    GameObject parentEnemy;
+
     public float projectileForce;
 
     private void Start()
@@ -27,5 +30,11 @@ public class EnemyFire : MonoBehaviour
         Vector3 dirToPlayer = (GameObject.Find("Player").transform.position - temp.transform.position).normalized;
         temp.gameObject.GetComponent<Rigidbody>().velocity = new Vector3(dirToPlayer.x, dirToPlayer.y + 0.2f, dirToPlayer.z) * projectileForce;
         Destroy(temp.gameObject, 5.0f);
+    }
+
+    public void Death()
+    {
+        Instantiate(GetComponentInParent<MinionMovement>().pickupsPrefabArray[UnityEngine.Random.Range(0, 2)], new Vector3(transform.position.x, transform.position.y + 0.6f, transform.position.z), Quaternion.Euler(90, transform.rotation.y, 0));
+        Destroy(parentEnemy);
     }
 }

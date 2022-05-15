@@ -58,8 +58,7 @@ public class MinionMovement : MonoBehaviour
 
             if (_health <= 0)
             {
-                OnDeath();
-                Destroy(gameObject);
+                anim.SetTrigger("Death");
             }
         }
     }
@@ -123,96 +122,99 @@ public class MinionMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        distToTarget = Vector3.Distance(transform.position, target.transform.position);
-
-        if (target && enemyType == EnemyType.Patrol)
+        AnimatorClipInfo[] curAnim = anim.GetCurrentAnimatorClipInfo(0);
+        if (curAnim[0].clip.name != "Zombie Death")
         {
-            if (agent.remainingDistance < distToNextNode)
-            {
-                if (path.Length > 0)
-                {
-                    pathIndex++;
-                    pathIndex %= path.Length;
-                    if (pathIndex == 0)
-                    {
-                        for (int i = 0; i < path.Length; i++)
-                        {
-                            GameObject temp = path[i];
-                            int rand = UnityEngine.Random.Range(0, path.Length);
-                            path[i] = path[rand];
-                            path[rand] = temp;
-                        }
-                    }
+            distToTarget = Vector3.Distance(transform.position, target.transform.position);
 
-                    target = path[pathIndex];
+            if (target && enemyType == EnemyType.Patrol)
+            {
+                if (agent.remainingDistance < distToNextNode)
+                {
+                    if (path.Length > 0)
+                    {
+                        pathIndex++;
+                        pathIndex %= path.Length;
+                        if (pathIndex == 0)
+                        {
+                            for (int i = 0; i < path.Length; i++)
+                            {
+                                GameObject temp = path[i];
+                                int rand = UnityEngine.Random.Range(0, path.Length);
+                                path[i] = path[rand];
+                                path[rand] = temp;
+                            }
+                        }
+
+                        target = path[pathIndex];
+                    }
                 }
             }
-        }
 
-        if (target)
-            agent.SetDestination(target.transform.position);
+            if (target)
+                agent.SetDestination(target.transform.position);
 
-        AnimatorClipInfo[] curAnim = anim.GetCurrentAnimatorClipInfo(0);
 
-        if (curAnim[0].clip.name == "Zombie Kicking" || curAnim[0].clip.name == "Punching")
-        {
-            anim.SetFloat("Speed", 0);
-            agent.speed = 0;
-        }
-        else if (curAnim[0].clip.name == "Throw Object")
-        {
-            anim.SetFloat("Speed", 0);
-            agent.speed = 0;
-            transform.LookAt(Player.transform);
-        }
-        else
-        {
-            anim.SetFloat("Speed", 1);
-            agent.speed = speed;
-        }
-        
-        if (Vector3.Distance(transform.position, Player.transform.position) < 25)
-        {
-            if (enemyType == EnemyType.Patrol)
+            if (curAnim[0].clip.name == "Zombie Kicking" || curAnim[0].clip.name == "Punching")
             {
-                enemyType = EnemyType.Chase;
-                target = Player;
+                anim.SetFloat("Speed", 0);
+                agent.speed = 0;
+            }
+            else if (curAnim[0].clip.name == "Throw Object")
+            {
+                anim.SetFloat("Speed", 0);
+                agent.speed = 0;
+                transform.LookAt(Player.transform);
+            }
+            else
+            {
+                anim.SetFloat("Speed", 1);
+                agent.speed = speed;
+            }
+        
+            if (Vector3.Distance(transform.position, Player.transform.position) < 25)
+            {
+                if (enemyType == EnemyType.Patrol)
+                {
+                    enemyType = EnemyType.Chase;
+                    target = Player;
+                    agent.SetDestination(target.transform.position);
+                }
+
+                if (Time.time > timeOfLastFire + projectileFireRate && Vector3.Distance(transform.position, Player.transform.position) >= 4)
+                {
+                    timeOfLastFire = Time.time;
+                    anim.SetTrigger("Throw");
+                }
+                else if (Time.time > timeOfLastFire + projectileFireRate && Vector3.Distance(transform.position, Player.transform.position) < 4)
+                {
+                    //Debug.Log("Melee Attack");
+                    timeOfLastFire = Time.time;
+                    transform.LookAt(Player.transform);
+                    int randomTemp = UnityEngine.Random.Range(0, 2);
+                    if (randomTemp == 0)
+                        anim.SetTrigger("Punch");
+                    else if (randomTemp == 1)
+                        anim.SetTrigger("Kick");
+                }
+            }
+            else if (Vector3.Distance(transform.position, Player.transform.position) > 30 && enemyType == EnemyType.Chase)
+            {
+                enemyType = EnemyType.Patrol;
+                target = path[pathIndex];
                 agent.SetDestination(target.transform.position);
             }
 
-            if (Time.time > timeOfLastFire + projectileFireRate && Vector3.Distance(transform.position, Player.transform.position) >= 4)
+            if (GameManager.Instance.pause)
             {
-                timeOfLastFire = Time.time;
-                anim.SetTrigger("Throw");
+                anim.speed = 0;
+                agent.speed = 0;
             }
-            else if (Time.time > timeOfLastFire + projectileFireRate && Vector3.Distance(transform.position, Player.transform.position) < 4)
+            else
             {
-                //Debug.Log("Melee Attack");
-                timeOfLastFire = Time.time;
-                transform.LookAt(Player.transform);
-                int randomTemp = UnityEngine.Random.Range(0, 2);
-                if (randomTemp == 0)
-                    anim.SetTrigger("Punch");
-                else if (randomTemp == 1)
-                    anim.SetTrigger("Kick");
+                anim.speed = 1;
+                agent.speed = speed;
             }
-        }
-        else if (Vector3.Distance(transform.position, Player.transform.position) > 30 && enemyType == EnemyType.Chase)
-        {
-            enemyType = EnemyType.Patrol;
-            target = path[pathIndex];
-            agent.SetDestination(target.transform.position);
-        }
-
-        if (GameManager.Instance.pause)
-        {
-            anim.speed = 0;
-            agent.speed = 0;
-        }
-        else
-        {
-            anim.speed = 1;
-            agent.speed = speed;
         }
 
         healthBar.transform.LookAt(GameObject.Find("Main Camera").transform);
@@ -236,11 +238,6 @@ public class MinionMovement : MonoBehaviour
         {
             health--;
         }
-    }
-
-    private void OnDeath()
-    {
-        Instantiate(pickupsPrefabArray[UnityEngine.Random.Range(0, 2)], new Vector3(transform.position.x, transform.position.y + 0.6f, transform.position.z), Quaternion.Euler(90, transform.rotation.y, 0));
     }
 
     private void RemoveElement<T>(ref T[] arr, int index)
