@@ -8,6 +8,7 @@ TagManager:
   - FinishPoint
   - EnemyProjectile
   - PlayerProjectile
+  - PatrolNode
   layers:
   - Default
   - TransparentFX
