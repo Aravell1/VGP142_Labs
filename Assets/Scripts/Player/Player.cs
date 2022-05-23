@@ -9,6 +9,7 @@ public class Player : MonoBehaviour
     CharacterController controller;
     Fire playerFire;
     Animator anim;
+    Vector3 moveDirection;
 
     [Header("Player Settings")]
     [Space(2)]
@@ -25,10 +26,13 @@ public class Player : MonoBehaviour
     public Rigidbody projectilePrefab;
     public Transform projectileSpawnPoint;
 
-    Vector3 moveDirection;
+    [Header("Pickup Settings")]
+    public float jumpModeTimer = 5;
+    public float jumpMultiplier = 1.5f;
 
-    bool coroutineRunning = false;
+    [Header("Field Effect Settings")]
     bool inWater = false;
+    public float healTimer = 0;
 
     // Start is called before the first frame update
     void Start()
@@ -127,9 +131,9 @@ public class Player : MonoBehaviour
 
         controller.Move(moveDirection * Time.deltaTime);
 
-        if (!GameManager.Instance.pause && curAnim[0].clip.name != "Hit To Body" && Input.GetButtonDown("Fire1"))
+        if (!GameManager.Instance.gunEquipped && !GameManager.Instance.pause && curAnim[0].clip.name != "Hit To Body" && Input.GetButtonDown("Fire1"))
             anim.SetTrigger("Attack");
-        if (!GameManager.Instance.pause && curAnim[0].clip.name != "Hit To Body" && Input.GetButtonDown("Fire2"))
+        if (!GameManager.Instance.gunEquipped && !GameManager.Instance.pause && curAnim[0].clip.name != "Hit To Body" && Input.GetButtonDown("Fire2"))
             anim.SetTrigger("Kick");
     }
 
@@ -177,11 +181,24 @@ public class Player : MonoBehaviour
 
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {
-        AnimatorClipInfo[] curAnim = anim.GetCurrentAnimatorClipInfo(0);
+        /*AnimatorClipInfo[] curAnim = anim.GetCurrentAnimatorClipInfo(0);
         if (curAnim[0].clip.name != "Hit To Body" && hit.gameObject.tag == "Mushroom")
         {
             Debug.Log("Mushroom");
             GameManager.Instance.health--;
+        }*/
+    }
+
+    private void OnTriggerStay(Collider other)
+    {
+        if (other.gameObject.tag == "Mushroom")
+        {
+            healTimer += Time.deltaTime;
+            if (healTimer >= 3)
+            {
+                healTimer = 0;
+                GameManager.Instance.health++;
+            }
         }
     }
 
@@ -195,7 +212,7 @@ public class Player : MonoBehaviour
         }
     }
 
-    public void onPause()
+    public void OnPause()
     {
         if (GameManager.Instance.pause)
         {
@@ -209,54 +226,26 @@ public class Player : MonoBehaviour
             speed = storedSpeed;
         }
     }
-        
-    public void StartJumpForceChange()
+
+    public IEnumerator JumpMode()
     {
-        if (!coroutineRunning)
-        {
-            StartCoroutine("JumpForceChange");
-        }
-        else
-        {
-            StopCoroutine("JumpForceChange");
-            jumpSpeed /= 2;
-            StartCoroutine("JumpForceChange");
-        }
+        Debug.Log("Jump Mode Started");
+
+        jumpSpeed *= jumpMultiplier;
+
+        yield return new WaitForSeconds(jumpModeTimer);
+
+        jumpSpeed /= jumpMultiplier;
     }
 
-    IEnumerator JumpForceChange()
+    public IEnumerator SpeedMode()
     {
-        coroutineRunning = true;
-        jumpSpeed *= 2;
+        Debug.Log("Speed Mode Started");
 
-        yield return new WaitForSeconds(5.0f);
-
-        jumpSpeed /= 2;
-        coroutineRunning = false;
-    }
-
-    public void StartSpeedForceChange()
-    {
-        if (!coroutineRunning)
-        {
-            StartCoroutine("SpeedForceChange");
-        }
-        else
-        {
-            StopCoroutine("SpeedForceChange");
-            speed /= 1.5f;
-            StartCoroutine("SpeedForceChange");
-        }
-    }
-
-    IEnumerator SpeedForceChange()
-    {
-        coroutineRunning = true;
         speed *= 1.5f;
 
         yield return new WaitForSeconds(5.0f);
 
         speed /= 1.5f;
-        coroutineRunning = false;
     }
 }

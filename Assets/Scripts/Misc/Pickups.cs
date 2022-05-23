@@ -7,11 +7,13 @@ public class Pickups : MonoBehaviour
     enum CollectibleType
     {
         JUMP_POWERUP,
-        SPEED_POWERUP
+        SPEED_POWERUP,
+        SCORE_COLLECTIBLE
     }
 
     [SerializeField] CollectibleType curCollectible;
-
+    [SerializeField] GameObject particleEmitter;
+    [SerializeField] int scoreValue;
     private void Start()
     {
 
@@ -25,13 +27,20 @@ public class Pickups : MonoBehaviour
             switch (curCollectible)
             {
                 case CollectibleType.JUMP_POWERUP:
-                    curPlayerScript.StartJumpForceChange();
+                    curPlayerScript.StartCoroutine("JumpMode");
+                    GameManager.Instance.score += scoreValue;
                     break;
                 case CollectibleType.SPEED_POWERUP:
-                    curPlayerScript.StartSpeedForceChange();
+                    curPlayerScript.StartCoroutine("SpeedMode");
+                    GameManager.Instance.score += scoreValue;
+                    break;
+                case CollectibleType.SCORE_COLLECTIBLE:
+                    GameManager.Instance.score += scoreValue;
                     break;
             }
-            Destroy(gameObject);
+            particleEmitter.SetActive(true);
+            particleEmitter.GetComponent<ParticleSystem>().Play();
+            Destroy(gameObject, 0.2f);
         }
     }
 }

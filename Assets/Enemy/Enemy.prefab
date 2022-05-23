@@ -1425,6 +1425,7 @@ MonoBehaviour:
   pickupsPrefabArray:
   - {fileID: -1310281786048106566, guid: 6394e566031b8c644a81abd2ea14e3f3, type: 3}
   - {fileID: -3384614454362451076, guid: a26b11dd5c8de4649b5f42b98964f4d2, type: 3}
+  - {fileID: 4317890834715109886, guid: 7eb33052d3efb554aaf7e88dcb06581d, type: 3}
   target: {fileID: 0}
   enemy: {fileID: 5922562715347253657}
   rayOrigin: {fileID: 5922562715918927023}

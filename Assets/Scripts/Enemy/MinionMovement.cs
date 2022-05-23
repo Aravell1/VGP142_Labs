@@ -136,6 +136,7 @@ public class MinionMovement : MonoBehaviour
 
             if (target && enemyType == EnemyType.Patrol)
             {
+                healthBar.gameObject.SetActive(false);
                 if (agent.remainingDistance < distToNextNode)
                 {
                     if (path.Length > 0)
@@ -157,26 +158,28 @@ public class MinionMovement : MonoBehaviour
                     }
                 }
             }
+            else if (enemyType == EnemyType.Chase)
+                healthBar.gameObject.SetActive(true);
 
-            if (target)
+            if (target && agent.enabled)
                 agent.SetDestination(target.transform.position);
 
 
             if (curAnim[0].clip.name == "Zombie Kicking" || curAnim[0].clip.name == "Punching")
             {
                 anim.SetFloat("Speed", 0);
-                agent.speed = 0;
+                agent.enabled = false;
             }
             else if (curAnim[0].clip.name == "Throw Object")
             {
                 anim.SetFloat("Speed", 0);
-                agent.speed = 0;
+                agent.enabled = false;
                 transform.LookAt(Player.transform);
             }
             else
             {
                 anim.SetFloat("Speed", 1);
-                agent.speed = speed;
+                agent.enabled = true;
             }
         
             if (Vector3.Distance(transform.position, Player.transform.position) < 25)
@@ -205,7 +208,7 @@ public class MinionMovement : MonoBehaviour
                         anim.SetTrigger("Kick");
                 }
             }
-            else if (Vector3.Distance(transform.position, Player.transform.position) > 30 && enemyType == EnemyType.Chase)
+            else if (Vector3.Distance(transform.position, Player.transform.position) > 30 && enemyType == EnemyType.Chase && agent.enabled)
             {
                 enemyType = EnemyType.Patrol;
                 target = path[pathIndex];

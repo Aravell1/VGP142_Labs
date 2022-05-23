@@ -6,10 +6,18 @@ using UnityEngine.Events;
 
 public class GameManager : Singleton<GameManager>
 {
+    [Header("Cameras")]
+    public Camera mainCam;
+    public Camera fpsCam;
+
     public string activeScene;
 
     public bool pause = false;
 
+    int _score = 0;
+
+    bool _gunEquipped = false;
+    
     int _health = 3;
     int maxHealth = 3;
 
@@ -21,9 +29,10 @@ public class GameManager : Singleton<GameManager>
         }
         set
         {
+            GameObject.Find("Canvas").GetComponent<CanvasManager>().healthSlider.value = value;
+
             if (_health > value)
-            {
-                GameObject.Find("Canvas").GetComponent<CanvasManager>().healthSlider.value = value;
+            {                
                 if (value > 0)
                     GameObject.FindWithTag("Player").GetComponentInChildren<Animator>().SetTrigger("Hit");
             }
@@ -42,6 +51,43 @@ public class GameManager : Singleton<GameManager>
             }
 
             Debug.Log("Health Set to: " + health.ToString());
+        }
+    }
+
+    public bool gunEquipped
+    {
+        get
+        {
+            return _gunEquipped;
+        }
+        set
+        {
+            if (mainCam && fpsCam)
+            {
+                if (value == true)
+                {
+                    fpsCam.enabled = true;
+                    mainCam.enabled = false;
+                }
+                else
+                {
+                    fpsCam.enabled = false;
+                    mainCam.enabled = true;
+                }
+            }
+            _gunEquipped = value;
+        }
+    }
+
+    public int score
+    {
+        get
+        {
+            return _score;
+        }
+        set
+        {
+            _score = value;
         }
     }
 

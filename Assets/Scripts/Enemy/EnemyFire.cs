@@ -34,7 +34,9 @@ public class EnemyFire : MonoBehaviour
 
     public void Death()
     {
-        Instantiate(GetComponentInParent<MinionMovement>().pickupsPrefabArray[UnityEngine.Random.Range(0, 2)], new Vector3(transform.position.x, transform.position.y + 0.6f, transform.position.z), Quaternion.Euler(90, transform.rotation.y, 0));
+        Instantiate(GetComponentInParent<MinionMovement>().pickupsPrefabArray[UnityEngine.Random.Range(0, GetComponentInParent<MinionMovement>().pickupsPrefabArray.Length)],
+            new Vector3(transform.position.x, transform.position.y + 0.6f, transform.position.z), Quaternion.Euler(90, transform.rotation.y, 0));
+        GameManager.Instance.score += 10;
         Destroy(parentEnemy);
     }
 }

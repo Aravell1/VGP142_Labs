@@ -23,6 +23,7 @@ public class CanvasManager : MonoBehaviour
 
     [Header("Text")]
     public TMP_Text healthText;
+    public TMP_Text scoreText;
 
     // Start is called before the first frame update
     void Start()
@@ -73,9 +74,10 @@ public class CanvasManager : MonoBehaviour
                     pauseMenu.SetActive(false);
                     GameManager.Instance.pause = false;
                 }
-                GameObject.Find("Player").GetComponent<Player>().onPause();
+                GameObject.Find("Player").GetComponent<Player>().OnPause();
             }
         }
+        scoreText.text = "Score: " + GameManager.Instance.score;
     }
 
     public void StartGame()
