@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using System.IO;
 using System;
 using UnityEngine;
@@ -31,20 +29,19 @@ public class GameManager : Singleton<GameManager>
     {
         base.Awake();
 
-        string playerDataJSON = File.ReadAllText(Application.dataPath + "/Saves/0.sav");
-        Debug.Log("Loading: " + EncryptDecrypt(playerDataJSON) + " : " + playerDataJSON);
-        JsonUtility.FromJsonOverwrite(EncryptDecrypt(playerDataJSON), Data);
+        Instantiate(playerPrefab, GameObject.Find("Checkpoint").GetComponent<Checkpoints>().spawnPoint.position, GameObject.Find("Checkpoint").GetComponent<Checkpoints>().spawnPoint.rotation);
+
+        LoadGame();
+        Debug.Log(playerInfoStored);
+        Debug.Log(Data.playerInfoStored);
 
         playerInfoStored = Data.playerInfoStored;
-        if (!playerInfoStored)
+        if (playerInfoStored)
         {
-            Debug.Log("Spawned from awake");
-            Instantiate(playerPrefab, GameObject.Find("Checkpoint").GetComponent<Checkpoints>().spawnPoint.position, GameObject.Find("Checkpoint").GetComponent<Checkpoints>().spawnPoint.rotation);
-        }
-        else
-        {
-            Instantiate(playerPrefab, new Vector3(Data.posX, Data.posY, Data.posZ),
-                Quaternion.Euler(Data.rotX, Data.rotY, Data.rotZ));
+            Debug.Log("moved player to " + Data.posX);
+            Player.Instance.transform.position = new Vector3(Data.posX, Data.posY, Data.posZ);
+            Player.Instance.transform.rotation = Quaternion.Euler(Data.rotX, Data.rotY, Data.rotZ);
+
             lives = Data.lives;
             score = Data.score;
         }
@@ -198,25 +195,14 @@ public class GameManager : Singleton<GameManager>
     /* This part may differ from your part but the method is the same*/
     public void LoadGame()
     {
-        if (playerInfoStored)
-        {
-            if (pause)
-            {
-                pause = false;
-                GameObject.Find("Canvas").GetComponent<CanvasManager>().pauseMenu.SetActive(false);
-                Player.Instance.GetComponent<Player>().OnPause();
-            }
+        health = maxHealth;
 
-            if (Player.Instance.GetComponent<Player>())
-                Destroy(Player.Instance.GetComponent<Player>().gameObject);
+        //Getting Save File
+        string playerDataJSON = File.ReadAllText(Application.dataPath + "/Saves/0.sav");
+        Debug.Log("Loading: " + EncryptDecrypt(playerDataJSON) + " : " + playerDataJSON);
+        JsonUtility.FromJsonOverwrite(EncryptDecrypt(playerDataJSON), Data);
 
-            health = maxHealth;
-            //Loading the Data to the new spawned Player
-
-            //Getting Save File
-            
-            SceneManager.LoadScene(Data.curScene);
-        }
+        playerInfoStored = Data.playerInfoStored;
     }
 
     private static string EncryptDecrypt(string data)

@@ -72,46 +72,49 @@ public class Player : Singleton<Player>
     // Update is called once per frame
     void Update()
     {
-        AnimatorClipInfo[] curAnim = anim.GetCurrentAnimatorClipInfo(0);
-
-        if (controller.isGrounded)
+        if (gameObject)
         {
-            if (curAnim.Length > 0)
+            AnimatorClipInfo[] curAnim = anim.GetCurrentAnimatorClipInfo(0);
+
+            if (controller.isGrounded)
             {
-                if (curAnim[0].clip.name != "Cross Punch" && curAnim[0].clip.name != "Mma Kick" && curAnim[0].clip.name != "Death")
-                    moveDirection = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
+                if (curAnim.Length > 0)
+                {
+                    if (curAnim[0].clip.name != "Cross Punch" && curAnim[0].clip.name != "Mma Kick" && curAnim[0].clip.name != "Death")
+                        moveDirection = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
+                    else
+                        moveDirection = Vector3.zero;                
+                }
+                if (!inWater)
+                {
+                    anim.SetFloat("Horizontal", moveDirection.x);
+                    anim.SetFloat("Vertical", moveDirection.z);
+                }
                 else
-                    moveDirection = Vector3.zero;                
-            }
-            if (!inWater)
-            {
-                anim.SetFloat("Horizontal", moveDirection.x);
-                anim.SetFloat("Vertical", moveDirection.z);
-            }
-            else
-            {
-                anim.SetFloat("Horizontal", moveDirection.x / 2);
-                anim.SetFloat("Vertical", moveDirection.z / 2);
+                {
+                    anim.SetFloat("Horizontal", moveDirection.x / 2);
+                    anim.SetFloat("Vertical", moveDirection.z / 2);
+                }
+
+                moveDirection *= speed;
+                moveDirection = transform.TransformDirection(moveDirection);
+
+                if (Input.GetButtonDown("Jump"))
+                {
+                    moveDirection.y = jumpSpeed;
+                    anim.SetTrigger("Jump");
+                }
             }
 
-            moveDirection *= speed;
-            moveDirection = transform.TransformDirection(moveDirection);
+            moveDirection.y -= gravity * Time.deltaTime;
 
-            if (Input.GetButtonDown("Jump"))
-            {
-                moveDirection.y = jumpSpeed;
-                anim.SetTrigger("Jump");
-            }
+            controller.Move(moveDirection * Time.deltaTime);
+
+            if (!GameManager.Instance.gunEquipped && !GameManager.Instance.pause && curAnim[0].clip.name != "Hit To Body" && Input.GetButtonDown("Fire1"))
+                anim.SetTrigger("Attack");
+            if (!GameManager.Instance.gunEquipped && !GameManager.Instance.pause && curAnim[0].clip.name != "Hit To Body" && Input.GetButtonDown("Fire2"))
+                anim.SetTrigger("Kick");
         }
-
-        moveDirection.y -= gravity * Time.deltaTime;
-
-        controller.Move(moveDirection * Time.deltaTime);
-
-        if (!GameManager.Instance.gunEquipped && !GameManager.Instance.pause && curAnim[0].clip.name != "Hit To Body" && Input.GetButtonDown("Fire1"))
-            anim.SetTrigger("Attack");
-        if (!GameManager.Instance.gunEquipped && !GameManager.Instance.pause && curAnim[0].clip.name != "Hit To Body" && Input.GetButtonDown("Fire2"))
-            anim.SetTrigger("Kick");
     }
 
     [ContextMenu("Reset Stats")]
@@ -125,20 +128,23 @@ public class Player : Singleton<Player>
 
     private void OnTriggerEnter(Collider other)
     {
-        AnimatorClipInfo[] curAnim = anim.GetCurrentAnimatorClipInfo(0);
-        if ((curAnim[0].clip.name != "Hit To Body" && other.gameObject.name == "EnemyKickCollider" 
-            && other.GetComponentInParent<Animator>().GetCurrentAnimatorClipInfo(0)[0].clip.name == "Zombie Kicking" && curAnim[0].clip.name != "Death") 
-            || (curAnim[0].clip.name != "Hit To Body" && other.gameObject.name == "EnemyPunchCollider" 
-            && other.GetComponentInParent<Animator>().GetCurrentAnimatorClipInfo(0)[0].clip.name == "Punching" && curAnim[0].clip.name != "Death"))
+        if (gameObject)
         {
-            //Debug.Log("Got hit");
-            GameManager.Instance.health--;
-        }
-        else if (other.gameObject.layer == 4)
-        {
-            speed = speed / 2;
-            //Debug.Log("Hit Water");
-            inWater = true;
+            AnimatorClipInfo[] curAnim = anim.GetCurrentAnimatorClipInfo(0);
+            if ((curAnim[0].clip.name != "Hit To Body" && other.gameObject.name == "EnemyKickCollider" 
+                && other.GetComponentInParent<Animator>().GetCurrentAnimatorClipInfo(0)[0].clip.name == "Zombie Kicking" && curAnim[0].clip.name != "Death") 
+                || (curAnim[0].clip.name != "Hit To Body" && other.gameObject.name == "EnemyPunchCollider" 
+                && other.GetComponentInParent<Animator>().GetCurrentAnimatorClipInfo(0)[0].clip.name == "Punching" && curAnim[0].clip.name != "Death"))
+            {
+                //Debug.Log("Got hit");
+                GameManager.Instance.health--;
+            }
+            else if (other.gameObject.layer == 4)
+            {
+                speed = speed / 2;
+                //Debug.Log("Hit Water");
+                inWater = true;
+            }
         }
     }
 

@@ -2,8 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
 using UnityEngine.SceneManagement;
+using TMPro;
 
 public class CanvasManager : MonoBehaviour
 {
@@ -40,7 +40,7 @@ public class CanvasManager : MonoBehaviour
         if (menuButton)
             menuButton.onClick.AddListener(Menu);
         if (loadButton)
-            loadButton.onClick.AddListener(GameManager.Instance.LoadGame);
+            loadButton.onClick.AddListener(LoadGame);
         if (quitButton)
             quitButton.onClick.AddListener(QuitGame);
         if (resumeButton)
@@ -50,7 +50,7 @@ public class CanvasManager : MonoBehaviour
         if (deathQuitButton)
             deathQuitButton.onClick.AddListener(QuitGame);
         if (deathLoadButton)
-            deathLoadButton.onClick.AddListener(GameManager.Instance.LoadGame);
+            deathLoadButton.onClick.AddListener(LoadGame);
         if (healthSlider && healthText)
         {
             GameManager.Instance.onHealthValueChange.AddListener(UpdateHealth);
@@ -102,10 +102,27 @@ public class CanvasManager : MonoBehaviour
         scoreText.text = "Score: " + value;
     }
 
+    public void LoadGame()
+    {
+        if (GameManager.Instance.pause)
+        {
+            GameManager.Instance.pause = false;
+            pauseMenu.SetActive(false);
+            Player.Instance.GetComponent<Player>().OnPause();
+        }
+
+        if (Player.Instance.gameObject)
+            Destroy(Player.Instance.gameObject);
+
+        SceneManager.LoadScene("LoadingScene");
+    }
     public void StartGame()
     {
+        if (Player.Instance.gameObject)
+            Destroy(Player.Instance.gameObject);
+
         GameManager.Instance.ResetSaveData();
-        SceneManager.LoadScene("SampleScene");
+        SceneManager.LoadScene("LoadingScene");
     }
     public void Restart()
     {
