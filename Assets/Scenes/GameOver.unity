@@ -753,6 +753,18 @@ MonoBehaviour:
   startButton: {fileID: 0}
   restartButton: {fileID: 1794205530}
   menuButton: {fileID: 72584710}
+  loadButton: {fileID: 0}
+  quitButton: {fileID: 0}
+  resumeButton: {fileID: 0}
+  endButton: {fileID: 0}
+  deathQuitButton: {fileID: 0}
+  deathLoadButton: {fileID: 0}
+  pauseMenu: {fileID: 0}
+  deathMenu: {fileID: 0}
+  healthSlider: {fileID: 0}
+  healthText: {fileID: 0}
+  scoreText: {fileID: 0}
+  livesText: {fileID: 0}
 --- !u!1 &901730655
 GameObject:
   m_ObjectHideFlags: 0
@@ -984,7 +996,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db190c7fa35f96341a3df141ce8ee935, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  mainCam: {fileID: 0}
+  fpsCam: {fileID: 0}
+  currentCheckpoint: {fileID: 0}
+  playerPrefab: {fileID: 8791505020965838705, guid: 26a75ff634a2bbe40bbc8636b660e37a, type: 3}
+  Data:
+    playerInfoStored: 0
+    curScene: 
+    CurrentDate: 
+    lives: 0
+    health: 0
+    score: 0
   activeScene: 
+  pause: 0
+  playerInfoStored: 0
+  onHealthValueChange:
+    m_PersistentCalls:
+      m_Calls: []
+  onScoreValueChange:
+    m_PersistentCalls:
+      m_Calls: []
+  onLifeValueChange:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!4 &1736103162
 Transform:
   m_ObjectHideFlags: 0

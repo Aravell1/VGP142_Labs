@@ -7,7 +7,7 @@ public class PickUpController : MonoBehaviour
     public MonoBehaviour gunScript;
     public Rigidbody rb;
     public BoxCollider coll;
-    public Transform player, gunContainer, fpsCam;
+    public Transform gunContainer, fpsCam;
 
     public float pickUpRange;
     public float dropForwardForce, dropUpwardForce;
@@ -19,8 +19,7 @@ public class PickUpController : MonoBehaviour
         gunScript = GetComponent<GunFire>();
         rb = GetComponent<Rigidbody>();
         coll = GetComponent<BoxCollider>();
-        player = GameObject.Find("Player").transform;
-        gunContainer = GameObject.Find("GunContainer").transform;
+        gunContainer = Player.Instance.gunContainer.transform;
         fpsCam = GameObject.Find("FpsCam").transform;
 
         if (!equipped)
@@ -40,7 +39,7 @@ public class PickUpController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Vector3 distanceToPlayer = player.position - transform.position;
+        Vector3 distanceToPlayer = Player.Instance.transform.position - transform.position;
         if (!equipped && distanceToPlayer.magnitude <= pickUpRange && Input.GetKeyDown(KeyCode.E))
             PickUp();
 
@@ -73,7 +72,7 @@ public class PickUpController : MonoBehaviour
         rb.isKinematic = false;
         coll.isTrigger = false;
 
-        rb.velocity = player.GetComponent<Rigidbody>().velocity;
+        rb.velocity = Player.Instance.GetComponent<CharacterController>().velocity;
 
         rb.AddForce(fpsCam.forward * dropForwardForce, ForceMode.Impulse);
         rb.AddForce(fpsCam.up * dropForwardForce, ForceMode.Impulse);

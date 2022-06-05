@@ -27,7 +27,7 @@ public class EnemyFire : MonoBehaviour
     {
         Rigidbody temp;
         temp = Instantiate(projectilePrefab, projectileSpawnPoint.position, projectileSpawnPoint.rotation);
-        Vector3 dirToPlayer = (GameObject.Find("Player").transform.position - temp.transform.position).normalized;
+        Vector3 dirToPlayer = (Player.Instance.transform.position - temp.transform.position).normalized;
         temp.gameObject.GetComponent<Rigidbody>().velocity = new Vector3(dirToPlayer.x, dirToPlayer.y + 0.2f, dirToPlayer.z) * projectileForce;
         Destroy(temp.gameObject, 5.0f);
     }

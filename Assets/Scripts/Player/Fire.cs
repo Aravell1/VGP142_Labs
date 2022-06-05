@@ -5,32 +5,12 @@ using UnityEngine;
 public class Fire : MonoBehaviour
 {
     [SerializeField]
-    Transform rayOrigin;
-    [SerializeField]
     Transform projectileOrigin;
-
     [SerializeField]
     Rigidbody projectilePrefab;
 
     [SerializeField]
     float projectileForce;
-
-    public Transform Player;
-
-    public float startingVectorOffset = -45;
-    public int numOfLines = 18;
-    public int degToRotate = 90;
-
-    public LayerMask checkedLayers;
-
-    //GameObject tempTarget = null;
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        Player = GameObject.FindWithTag("Player").transform;
-    }
-
     // Update is called once per frame
     void Update()
     {
@@ -85,7 +65,7 @@ public class Fire : MonoBehaviour
         if (projectileOrigin && projectilePrefab)
         {
             Rigidbody temp = Instantiate(projectilePrefab, projectileOrigin.position, projectileOrigin.rotation);
-            temp.AddForce(Player.transform.forward * projectileForce, ForceMode.Impulse);
+            temp.AddForce(Player.Instance.transform.forward * projectileForce, ForceMode.Impulse);
 
             Destroy(temp.gameObject, 2.0f);
         }
@@ -93,13 +73,13 @@ public class Fire : MonoBehaviour
 
     public void hitStart()
     {
-        Player.GetComponent<Player>().storedSpeed = Player.GetComponent<Player>().speed;
-        Player.GetComponent<Player>().speed = 0;
+        Player.Instance.storedSpeed = Player.Instance.speed;
+        Player.Instance.speed = 0;
     }
 
     public void hitEnd()
     {
-        Player.GetComponent<Player>().speed = Player.GetComponent<Player>().storedSpeed;
+        Player.Instance.speed = Player.Instance.storedSpeed;
     }
 
     public void Death()

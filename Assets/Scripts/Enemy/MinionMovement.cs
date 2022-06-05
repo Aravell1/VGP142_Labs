@@ -13,7 +13,6 @@ public class MinionMovement : MonoBehaviour
     NavMeshAgent agent;
 
     public Pickups[] pickupsPrefabArray;
-    private GameObject Player;
     public GameObject target;
 
     [SerializeField]
@@ -66,7 +65,6 @@ public class MinionMovement : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        Player = GameObject.FindWithTag("Player");
         anim = GetComponentInChildren<Animator>();
         rb = GetComponent<Rigidbody>();
         agent = GetComponent<NavMeshAgent>();
@@ -109,7 +107,7 @@ public class MinionMovement : MonoBehaviour
         }
 
         if (!target && enemyType == EnemyType.Chase)
-            target = Player;
+            target = Player.Instance.gameObject;
         else if (enemyType == EnemyType.Patrol && path.Length > 0)
             target = path[pathIndex];
 
@@ -174,7 +172,7 @@ public class MinionMovement : MonoBehaviour
             {
                 anim.SetFloat("Speed", 0);
                 agent.enabled = false;
-                transform.LookAt(Player.transform);
+                transform.LookAt(Player.Instance.transform);
             }
             else
             {
@@ -182,25 +180,25 @@ public class MinionMovement : MonoBehaviour
                 agent.enabled = true;
             }
         
-            if (Vector3.Distance(transform.position, Player.transform.position) < 25)
+            if (Vector3.Distance(transform.position, Player.Instance.transform.position) < 25)
             {
                 if (enemyType == EnemyType.Patrol)
                 {
                     enemyType = EnemyType.Chase;
-                    target = Player;
+                    target = Player.Instance.gameObject;
                     agent.SetDestination(target.transform.position);
                 }
 
-                if (Time.time > timeOfLastFire + projectileFireRate && Vector3.Distance(transform.position, Player.transform.position) >= 2)
+                if (Time.time > timeOfLastFire + projectileFireRate && Vector3.Distance(transform.position, Player.Instance.transform.position) >= 2)
                 {
                     timeOfLastFire = Time.time;
                     anim.SetTrigger("Throw");
                 }
-                else if (Time.time > timeOfLastFire + projectileFireRate && Vector3.Distance(transform.position, Player.transform.position) < 2)
+                else if (Time.time > timeOfLastFire + projectileFireRate && Vector3.Distance(transform.position, Player.Instance.transform.position) < 2)
                 {
                     //Debug.Log("Melee Attack");
                     timeOfLastFire = Time.time;
-                    transform.LookAt(Player.transform);
+                    transform.LookAt(Player.Instance.transform);
                     int randomTemp = UnityEngine.Random.Range(0, 2);
                     if (randomTemp == 0)
                         anim.SetTrigger("Punch");
@@ -208,7 +206,7 @@ public class MinionMovement : MonoBehaviour
                         anim.SetTrigger("Kick");
                 }
             }
-            else if (Vector3.Distance(transform.position, Player.transform.position) > 30 && enemyType == EnemyType.Chase && agent.enabled)
+            else if (Vector3.Distance(transform.position, Player.Instance.transform.position) > 30 && enemyType == EnemyType.Chase && agent.enabled)
             {
                 enemyType = EnemyType.Patrol;
                 target = path[pathIndex];
@@ -247,8 +245,8 @@ public class MinionMovement : MonoBehaviour
     {
         AnimatorClipInfo[] curAnim = anim.GetCurrentAnimatorClipInfo(0);
         //Debug.Log("Collided with " + other.gameObject.name);
-        if ((curAnim[0].clip.name != "Zombie Death" && other.gameObject.name == "KickCollider" && Player.GetComponentInChildren<Animator>().GetCurrentAnimatorClipInfo(0)[0].clip.name == "Mma Kick")
-            || (other.gameObject.name == "PunchCollider" && Player.GetComponentInChildren<Animator>().GetCurrentAnimatorClipInfo(0)[0].clip.name == "Cross Punch"))
+        if ((curAnim[0].clip.name != "Zombie Death" && other.gameObject.name == "KickCollider" && Player.Instance.GetComponentInChildren<Animator>().GetCurrentAnimatorClipInfo(0)[0].clip.name == "Mma Kick")
+            || (other.gameObject.name == "PunchCollider" && Player.Instance.GetComponentInChildren<Animator>().GetCurrentAnimatorClipInfo(0)[0].clip.name == "Cross Punch"))
         {
             health--;
         }

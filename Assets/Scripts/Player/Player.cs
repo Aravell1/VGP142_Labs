@@ -4,10 +4,9 @@ using UnityEngine;
 using System;
 
 [RequireComponent(typeof(CharacterController))]
-public class Player : MonoBehaviour
+public class Player : Singleton<Player>
 {
     CharacterController controller;
-    Fire playerFire;
     Animator anim;
     Vector3 moveDirection;
 
@@ -21,14 +20,14 @@ public class Player : MonoBehaviour
     public float rotationSpeed;
     public float gravity;
 
-    [Header("Weapon Settings")]
-    public float projectileForce;
-    public Rigidbody projectilePrefab;
-    public Transform projectileSpawnPoint;
-
+    [Header("Cameras")]
+    public Camera fpsCam;
+    public Camera mainCam;
+    
     [Header("Pickup Settings")]
     public float jumpModeTimer = 5;
     public float jumpMultiplier = 1.5f;
+    public GameObject gunContainer;
 
     [Header("Field Effect Settings")]
     bool inWater = false;
@@ -40,31 +39,17 @@ public class Player : MonoBehaviour
         try
         {
             controller = GetComponent<CharacterController>();
-            playerFire = GetComponent<Fire>();
             controller.minMoveDistance = 0.0f;
             anim = GetComponentInChildren<Animator>();
 
             if (speed <= 0)
-            {
                 speed = 8.0f;
-            }
             if (jumpSpeed <= 0)
-            {
                 jumpSpeed = 6.0f;
-            }
             if (rotationSpeed <= 0)
-            {
                 rotationSpeed = 10.0f;
-            }
             if (gravity <= 0)
-            {
                 gravity = 9.81f;
-            }
-            moveDirection = Vector3.zero;
-            if (projectileForce <= 0)
-            {
-                projectileForce = 10.0f;
-            }
         }
         catch (NullReferenceException e)
         {
@@ -118,14 +103,6 @@ public class Player : MonoBehaviour
                 anim.SetTrigger("Jump");
             }
         }
-        /*else
-        {
-            moveDirection.x = Input.GetAxis("Horizontal") * speed;
-            moveDirection.z = Input.GetAxis("Vertical") * speed;
-        }*/       
-
-        //Debug.Log(controller.isGrounded);
-        //anim.SetBool("IsGrounded", controller.isGrounded);
 
         moveDirection.y -= gravity * Time.deltaTime;
 
@@ -144,7 +121,6 @@ public class Player : MonoBehaviour
         jumpSpeed = 6.0f;
         rotationSpeed = 10.0f;
         gravity = 9.81f;
-        projectileForce = 10.0f;
     }
 
     private void OnTriggerEnter(Collider other)

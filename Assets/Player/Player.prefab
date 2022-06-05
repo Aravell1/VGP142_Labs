@@ -27,7 +27,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 829133032}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.633, z: 0.333}
+  m_LocalPosition: {x: 0, y: 1.633, z: 0.401}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -85,7 +85,7 @@ AudioListener:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 829133032}
-  m_Enabled: 1
+  m_Enabled: 0
 --- !u!114 &829133036
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -336,8 +336,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8791505020965838705}
-  m_LocalRotation: {x: 0, y: -0.7071068, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 94.5, y: 1.5, z: -0.9}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -347,7 +347,7 @@ Transform:
   - {fileID: 829133033}
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: -90, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!143 &8791505020965838719
 CharacterController:
   m_ObjectHideFlags: 0
@@ -383,11 +383,11 @@ MonoBehaviour:
   jumpSpeed: 0
   rotationSpeed: 0
   gravity: 0
-  projectileForce: 0
-  projectilePrefab: {fileID: 0}
-  projectileSpawnPoint: {fileID: 0}
+  fpsCam: {fileID: 829133035}
+  mainCam: {fileID: 8791505021549519349}
   jumpModeTimer: 5
   jumpMultiplier: 1.5
+  gunContainer: {fileID: 1099594460}
   healTimer: 0
 --- !u!114 &8791505020965838716
 MonoBehaviour:
@@ -593,7 +593,6 @@ MonoBehaviour:
   projectileOrigin: {fileID: 7983666739360829088}
   projectilePrefab: {fileID: 2196380866255722340, guid: ffe45b923d4b42c4e92cfee5997e6bfe, type: 3}
   projectileForce: 80
-  Player: {fileID: 0}
   startingVectorOffset: -45
   numOfLines: 18
   degToRotate: 90

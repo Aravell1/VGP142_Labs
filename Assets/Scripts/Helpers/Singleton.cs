@@ -25,7 +25,7 @@ public abstract class Singleton<T> : MonoBehaviour where T : Component
         }
     }
 
-    protected virtual void Start()
+    protected virtual void Awake()
     {
         if (!instance)
         {
@@ -36,11 +36,5 @@ public abstract class Singleton<T> : MonoBehaviour where T : Component
         {
             Destroy(gameObject);
         }
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 }
