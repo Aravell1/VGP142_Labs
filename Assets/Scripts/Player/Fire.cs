@@ -11,6 +11,7 @@ public class Fire : MonoBehaviour
 
     [SerializeField]
     float projectileForce;
+
     // Update is called once per frame
     void Update()
     {

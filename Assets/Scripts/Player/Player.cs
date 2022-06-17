@@ -31,7 +31,15 @@ public class Player : Singleton<Player>
 
     [Header("Field Effect Settings")]
     bool inWater = false;
-    public float healTimer = 0;
+
+    private float rotTimer = 6;
+    private float healTimer = 0;
+
+    [Header("Audio Clips")]
+    public AudioClip healSound;
+    public AudioClip gotHitSound;
+    public AudioClip splashSound; 
+    public AudioClip deathSound;
 
     // Start is called before the first frame update
     void Start()
@@ -136,13 +144,13 @@ public class Player : Singleton<Player>
                 || (curAnim[0].clip.name != "Hit To Body" && other.gameObject.name == "EnemyPunchCollider" 
                 && other.GetComponentInParent<Animator>().GetCurrentAnimatorClipInfo(0)[0].clip.name == "Punching" && curAnim[0].clip.name != "Death"))
             {
-                //Debug.Log("Got hit");
+                SoundManager.Instance.Play(gotHitSound);
                 GameManager.Instance.health--;
             }
             else if (other.gameObject.layer == 4)
             {
+                SoundManager.Instance.Play(splashSound);
                 speed = speed / 2;
-                //Debug.Log("Hit Water");
                 inWater = true;
             }
         }
@@ -151,35 +159,38 @@ public class Player : Singleton<Player>
     private void OnCollisionEnter(Collision other)
     {
         AnimatorClipInfo[] curAnim = anim.GetCurrentAnimatorClipInfo(0);
-        Debug.Log(other.gameObject.tag);
-        Debug.Log(other.gameObject.name);
         if (curAnim[0].clip.name != "Hit To Body" && other.gameObject.tag == "EnemyProjectile" && curAnim[0].clip.name != "Death")
         {
-            //Debug.Log("Got hit");
+            SoundManager.Instance.Play(gotHitSound);
             Destroy(other.gameObject);
             GameManager.Instance.health--;
         }
     }
 
-    private void OnControllerColliderHit(ControllerColliderHit hit)
-    {
-        /*AnimatorClipInfo[] curAnim = anim.GetCurrentAnimatorClipInfo(0);
-        if (curAnim[0].clip.name != "Hit To Body" && hit.gameObject.tag == "Mushroom")
-        {
-            Debug.Log("Mushroom");
-            GameManager.Instance.health--;
-        }*/
-    }
-
     private void OnTriggerStay(Collider other)
     {
-        if (other.gameObject.tag == "Mushroom")
+        if (gameObject)
         {
-            healTimer += Time.deltaTime;
-            if (healTimer >= 3)
+            AnimatorClipInfo[] curAnim = anim.GetCurrentAnimatorClipInfo(0);
+            if (other.gameObject.tag == "Mushroom")
             {
-                healTimer = 0;
-                GameManager.Instance.health++;
+                healTimer += Time.deltaTime;
+                if (healTimer >= 3)
+                {
+                    SoundManager.Instance.Play(healSound);
+                    healTimer = 0;
+                    GameManager.Instance.health++;
+                }
+            }
+            else if (other.gameObject.tag == "ParticleBreath" && other.gameObject.GetComponentInParent<Zombie>().rotBreath.isPlaying && curAnim[0].clip.name != "Death" && curAnim[0].clip.name != "Hit To Body")
+            {
+                rotTimer += Time.deltaTime;
+                if (rotTimer >= 6)
+                {
+                    SoundManager.Instance.Play(gotHitSound);
+                    rotTimer = 0;
+                    GameManager.Instance.health--;
+                }
             }
         }
     }
@@ -188,9 +199,13 @@ public class Player : Singleton<Player>
     {
         if (other.gameObject.layer == 4)
         {
+            SoundManager.Instance.Play(splashSound);
             speed = speed * 2;
-            //Debug.Log("Left Water");
             inWater = false;
+        }
+        if (other.gameObject.tag == "ParticleBreath")
+        {
+            rotTimer = 6;
         }
     }
 

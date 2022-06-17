@@ -13,8 +13,12 @@ public class EnemyFire : MonoBehaviour
     [SerializeField]
     GameObject parentEnemy;
 
-    public float projectileForce;
+    [SerializeField]
+    public Pickups[] pickupsPrefabArray;
+    public int enemyDrop;
 
+    public float projectileForce;
+        
     private void Start()
     {
         if (projectileForce <= 0)
@@ -28,13 +32,13 @@ public class EnemyFire : MonoBehaviour
         Rigidbody temp;
         temp = Instantiate(projectilePrefab, projectileSpawnPoint.position, projectileSpawnPoint.rotation);
         Vector3 dirToPlayer = (Player.Instance.transform.position - temp.transform.position).normalized;
-        temp.gameObject.GetComponent<Rigidbody>().velocity = new Vector3(dirToPlayer.x, dirToPlayer.y + 0.2f, dirToPlayer.z) * projectileForce;
+        temp.gameObject.GetComponent<Rigidbody>().velocity = new Vector3(dirToPlayer.x, dirToPlayer.y + 0.05f, dirToPlayer.z) * projectileForce;
         Destroy(temp.gameObject, 5.0f);
     }
 
     public void Death()
     {
-        Instantiate(GetComponentInParent<MinionMovement>().pickupsPrefabArray[UnityEngine.Random.Range(0, GetComponentInParent<MinionMovement>().pickupsPrefabArray.Length)],
+        Instantiate(pickupsPrefabArray[enemyDrop],
             new Vector3(transform.position.x, transform.position.y + 0.6f, transform.position.z), Quaternion.Euler(90, transform.rotation.y, 0));
         GameManager.Instance.score += 10;
         Destroy(parentEnemy);

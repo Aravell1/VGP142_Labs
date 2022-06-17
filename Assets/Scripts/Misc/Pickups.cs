@@ -4,20 +4,19 @@ using UnityEngine;
 
 public class Pickups : MonoBehaviour
 {
+
     enum CollectibleType
     {
         JUMP_POWERUP,
         SPEED_POWERUP,
-        SCORE_COLLECTIBLE
+        SCORE_COLLECTIBLE,
+        HEAL_POWERUP
     }
 
     [SerializeField] CollectibleType curCollectible;
     [SerializeField] GameObject particleEmitter;
+    [SerializeField] AudioClip pickupSound;
     [SerializeField] int scoreValue;
-    private void Start()
-    {
-
-    }
 
     private void OnTriggerEnter(Collider collision)
     {
@@ -28,18 +27,24 @@ public class Pickups : MonoBehaviour
             {
                 case CollectibleType.JUMP_POWERUP:
                     curPlayerScript.StartCoroutine("JumpMode");
-                    GameManager.Instance.score += scoreValue;
+                    Debug.Log("Jump Height increased");
                     break;
                 case CollectibleType.SPEED_POWERUP:
                     curPlayerScript.StartCoroutine("SpeedMode");
-                    GameManager.Instance.score += scoreValue;
+                    Debug.Log("Player Speed increased");
                     break;
                 case CollectibleType.SCORE_COLLECTIBLE:
-                    GameManager.Instance.score += scoreValue;
+                    Debug.Log("You Win!");
+                    break;
+                case CollectibleType.HEAL_POWERUP:
+                    GameManager.Instance.health++;
+                    Debug.Log("Healed 1 HP");
                     break;
             }
-            particleEmitter.SetActive(true);
+            GameManager.Instance.score += scoreValue;
+            SoundManager.Instance.Play(pickupSound);
             particleEmitter.GetComponent<ParticleSystem>().Play();
+
             Destroy(gameObject, 0.2f);
         }
     }

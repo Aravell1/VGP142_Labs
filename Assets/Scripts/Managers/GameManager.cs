@@ -12,6 +12,8 @@ public class GameManager : Singleton<GameManager>
 
     public PlayerData Data;
 
+    public EnemySpawn[] enemySpawnArray;
+
     public string activeScene;
 
     public bool pause = false;
@@ -44,6 +46,27 @@ public class GameManager : Singleton<GameManager>
 
             lives = Data.lives;
             score = Data.score;
+        }
+
+        enemySpawnArray = FindObjectsOfType<EnemySpawn>();
+
+        for (int i = 0; i < enemySpawnArray.Length; i++)
+            enemySpawnArray[i].SpawnEnemies();
+
+        for (int i = 0; i < enemySpawnArray.Length; i++)
+        {
+            EnemySpawn temp = enemySpawnArray[i];
+            int rand = UnityEngine.Random.Range(0, enemySpawnArray.Length);
+            enemySpawnArray[i] = enemySpawnArray[rand];
+            enemySpawnArray[rand] = temp;
+        }
+
+        for (int i = 0; i < enemySpawnArray.Length; i++)
+        {
+            if (i == 0)
+                enemySpawnArray[i].spawnedEnemy.GetComponentInChildren<EnemyFire>().enemyDrop = 0;
+            else
+                enemySpawnArray[i].spawnedEnemy.GetComponentInChildren<EnemyFire>().enemyDrop = UnityEngine.Random.Range(1, enemySpawnArray[i].spawnedEnemy.GetComponentInChildren<EnemyFire>().pickupsPrefabArray.Length);
         }
     }
 
@@ -81,10 +104,11 @@ public class GameManager : Singleton<GameManager>
                 _health = maxHealth;
             }
 
-            onHealthValueChange.Invoke(value);
+            onHealthValueChange.Invoke(_health);
 
             if (_health <= 0)
             {
+                SoundManager.Instance.Play(Player.Instance.deathSound);
                 GameObject.FindWithTag("Player").GetComponentInChildren<Animator>().SetTrigger("Death");
                 lives--;
                 Data.lives = lives;

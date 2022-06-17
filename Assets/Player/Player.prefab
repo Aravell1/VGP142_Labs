@@ -388,7 +388,10 @@ MonoBehaviour:
   jumpModeTimer: 5
   jumpMultiplier: 1.5
   gunContainer: {fileID: 1099594460}
-  healTimer: 0
+  healSound: {fileID: 8300000, guid: 442a9ab2c8760854a90dc68bc75d67da, type: 3}
+  gotHitSound: {fileID: 8300000, guid: 6ce5d196b942d7c4992981a97e19dd35, type: 3}
+  splashSound: {fileID: 8300000, guid: c6929254242467c4f95942139d1636ca, type: 3}
+  deathSound: {fileID: 8300000, guid: 9c2d20ddf0a1b06408afeba572529fe6, type: 3}
 --- !u!114 &8791505020965838716
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -589,16 +592,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cdd4d912d0ba4544fbf1e580b7e41691, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rayOrigin: {fileID: 7983666739652755958}
   projectileOrigin: {fileID: 7983666739360829088}
   projectilePrefab: {fileID: 2196380866255722340, guid: ffe45b923d4b42c4e92cfee5997e6bfe, type: 3}
   projectileForce: 80
-  startingVectorOffset: -45
-  numOfLines: 18
-  degToRotate: 90
-  checkedLayers:
-    serializedVersion: 2
-    m_Bits: 0
 --- !u!4 &7584369517813878107 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 429ba844875ca0d4dade011706bac8ef, type: 3}
